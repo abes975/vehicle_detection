@@ -73,7 +73,7 @@ def find_cars(img, ystart, ystop, scale, clf, X_scaler, feature_filter, colspace
     window = 64
     nblocks_per_window = (window // pix_per_cell) - 1
     ## OVERLAP
-    cells_per_step = 2  # Instead of overlap, define how many cells to step
+    cells_per_step = 1  # Instead of overlap, define how many cells to step
 
     nxsteps = (nxblocks - nblocks_per_window) // cells_per_step
     nysteps = (nyblocks - nblocks_per_window) // cells_per_step
@@ -179,7 +179,7 @@ def process_image(img):
 
 if __name__ == '__main__':
 
-    filename = './model_solo_gti/model_YCrCb_orient_9_pix_cell_8_cell_block_2_hog_-1.pkl'
+    filename = './best_model.pkl'
     #filename = './model_dati_easy/best_model.pkl'
     if not os.path.isfile(filename):
         print("Model file ", filename, " does not exist")

@@ -4,13 +4,14 @@ from skimage.feature import hog
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
+
 # Define a function to compute color histogram features
 # Pass the color_space flag as 3-letter all caps string
 # like 'HSV' or 'LUV' etc.
 # KEEP IN MIND IF YOU DECIDE TO USE THIS FUNCTION LATER
 # IN YOUR PROJECT THAT IF YOU READ THE IMAGE WITH
 # cv2.imread() INSTEAD YOU START WITH BGR COLOR!
-def convert_color(img, color_space='RGB'):
+def convert_color(img, color_space='BRG'):
     # Convert image to new color space (if specified)
     if color_space == 'RGB':
         converted = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -24,11 +25,15 @@ def convert_color(img, color_space='RGB'):
         converted = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
     elif color_space == 'YCrCb':
         converted = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
+    elif color_space == 'gray':
+        converted = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     else:
+        # We have already a BGR image
         converted = np.copy(img)
     #print("After converting colors range max = ", np.max(converted), " min = ", np.min(converted))
     #converted = converted.astype(np.float32)/255
     return converted
+
 
 def bin_spatial(img, size=(32,32)):
     color1 = cv2.resize(img[:,:,0], size).ravel()
@@ -57,14 +62,14 @@ def get_hog_features(img, orient, pix_per_cell, cell_per_block,
                                 pixels_per_cell=(pix_per_cell, pix_per_cell),
                                 cells_per_block=(cell_per_block, cell_per_block),
                                 transform_sqrt=False, visualise=True,
-                                block_norm='L2-Hys', feature_vector=feature_vec)
+                                feature_vector=feature_vec)
         return features, hog_image
     else:
         features = hog(img, orientations=orient,
                             pixels_per_cell=(pix_per_cell, pix_per_cell),
                             cells_per_block=(cell_per_block, cell_per_block),
                             transform_sqrt=False, visualise=False,
-                            block_norm='L2-Hys', feature_vector=feature_vec)
+                            feature_vector=feature_vec)
         return features
 
 

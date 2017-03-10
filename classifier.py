@@ -125,18 +125,18 @@ def classify(cars, notcars, test_cars, test_noncars, cspace, orient, pix_per_cel
     X_train_scaled = X_scaler.transform(X_train_filtered)
     X_test_scaled = X_scaler.transform(X_test_filtered)
 
-    #print("We have", X_train_filtered.shape[1], " features ")
     # Use a linear SVC
     print("Starting a SVM grid search")
-    # param_grid = { 'C':[1.0,10.0,100.0] }
-    # svc = GridSearchCV(LinearSVC(max_iter=5000, verbose=0),param_grid, n_jobs=5, pre_dispatch=4)
-    # svc = svc.fit(X_train_scaled, y_train)
-    # print("Best estimator found by grid search:")
-    # print(svc.best_estimator_)
-    svc = LinearSVC(max_iter=10000, verbose=1)
-    # Check the training time for the SVC
     t=time.time()
-    svc.fit(X_train_scaled, y_train)
+    param_grid = { 'C':[1.0,10.0,100.0] }
+    svc = GridSearchCV(LinearSVC(max_iter=10000, verbose=0),param_grid, n_jobs=5, pre_dispatch=4)
+    svc = svc.fit(X_train_scaled, y_train)
+    print("Best estimator found by grid search:")
+    print(svc.best_estimator_)
+    #svc = LinearSVC(max_iter=10000, verbose=1)
+    # Check the training time for the SVC
+    # t=time.time()
+    # svc.fit(X_train_scaled, y_train)
     t2 = time.time()
     print(round(t2-t, 2), 'Seconds to Grid search SVC...')
 
@@ -155,28 +155,18 @@ def classify(cars, notcars, test_cars, test_noncars, cspace, orient, pix_per_cel
 
 def grid_search(cars, notcars, test_cars, test_noncars):
     ### TODO: Tweak these parameters and see how the results change.
-    #colorspaces = ['YCrCb', 'HLS', , 'RGB', 'YUV', 'LUV']
-    colorspaces = ['HLS', 'HSV', 'YCrCb', 'RGB' ]
-    #orients = [6,8,9]
-    orients = [9]
+    colorspaces = ['HLS', 'HSV', 'YCrCb', 'RGB', 'YUV' ]
+    orients = [6,8,9]
+    #orients = [9]
     pix_per_cells = [8]
     cell_per_block = 2
-    #hog_channels = [-1, 0, 1, 2] # Can be 0, 1, 2, or -1 that stands for alla channels
-    hog_channels = [-1]
+    hog_channels = [-1, 0, 1, 2] # Can be 0, 1, 2, or -1 that stands for alla channels
+    #hog_channels = [-1]
     color_feats = [ True, False]
     hog_feats = [True, False]
     space_feats = [True, False]
 
-    # colorspaces = ['YCrCb']
-    # orient = 9
-    # pix_per_cells = [8]
-    # cell_per_blocks = [2]
-    # hog_channels = [-1] # Can be 0, 1, 2, or -1 that stands for alla channels
-    # color_feats = [True, False]
-    # hog_feats = [True, False]
-    # space_feats = [True, False]
-
-    max_acc = 0
+    max_f1 = 0
     for clspcs in colorspaces:
         for h_chan in hog_channels:
             for orient in orients:
@@ -184,7 +174,7 @@ def grid_search(cars, notcars, test_cars, test_noncars):
                     kwargs = {'cspace':clspcs, 'orient':orient, 'pix_per_cell':pix_per_cell,
                         'cell_per_block':cell_per_block, 'hog_channel':h_chan}
                     model, metrics, scaler, filter_mask = classify(cars, notcars, test_cars, test_noncars,  **kwargs)
-                    if metrics[1] > max_acc:
+                    if metrics[1] > max_f1:
                         with open('./model_solo_gti/model_parameter.txt', 'w') as fm:
                             #file_name = 'Accuracy: ' + str(acc) + ' colorspace: ' + clspcs + ' orient: ' + str(orient) + ' pix_cell: ', str(pix_per_cell), + ' cell_block: ' + str(cell_per_block) + ' hog:' + str(h_chan)
                             fm.write("Accuracy " + str(metrics[0]) + '\n')
@@ -201,7 +191,7 @@ def grid_search(cars, notcars, test_cars, test_noncars):
                                 value = h_chan
                             fm.write("Hog " + str(value) + '\n')
                             #fm.write(file_name)
-                        max_acc = metrics[1]
+                        max_f1 = metrics[1]
                         file_name='./model_solo_gti/best_model.pkl'
                         with open(file_name, 'wb') as fid:
                             data_bundle = {'model': model, 'filter_mask': filter_mask, 'scaler': scaler}
