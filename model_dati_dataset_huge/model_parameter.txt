@@ -1,0 +1,9 @@
+Accuracy 0.8222
+F1 score 0.8441
+Precision 0.7549
+Recall 0.9571
+Color Space HSV
+Orient 9
+Pixel Per Cell 8
+Cell Block 2
+Hog ALL
